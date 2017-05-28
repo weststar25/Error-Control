@@ -1,206 +1,206 @@
-//#include<stdio.h>
-//#include<stdlib.h>
-//#include<string.h>
-//#include<winsock2.h>
-//#include<conio.h>
-//#include<time.h>
-//#pragma comment(lib,"ws2_32.lib")
-//#define PORT 3000
-//#define BLACK 0
-//#define LIGHTGRAY 7
-//#define LIGHTRED 12 
-//typedef struct FRAME{					
-//	unsigned int p :5;				//Àü¼Û ¼º°ø·ü
-//	unsigned int Seq_num :7;		//seq
-//	unsigned int ACK_num :7;
-//	unsigned long sender;	
-//	unsigned long receiver;
-//	char Data[200];
-//}header;
-//
-//void openSocket(WSADATA &wsaData, SOCKET &S_Socket, SOCKET &C_Socket, SOCKADDR_IN &s_Addr, SOCKADDR_IN &c_Addr);
-//void packet(header (&frame)[100], int (&timeout)[30], SOCKET &C_Socket, int (&cnt)[4]);
-//void finsh(SOCKET &C_Socket, SOCKADDR_IN &c_Addr, int (&timeout)[30], int (&cnt)[4]);
-//void textcolor(int foreground, int background);
-//int random(int n);
-//
-//int main(int argc, char **argv)
-//{
-//	WSADATA wsaData;		//À©¼Ó ÃÊ±âÈ­ Á¤º¸ ±¸Á¶Ã¼
-//	SOCKET S_Socket;
-//	SOCKET C_Socket;
-//	SOCKADDR_IN s_Addr;
-//	SOCKADDR_IN c_Addr;
-//
-//	//[0] frame ¼ö½Å È½¼ö | [1]ack Àü¼ÛÈ½¼ö | [2]ÀçÀü¼ÛµÈ ÆĞÅ¶ ¼ö for NAK | [3]ÀçÀü¼ÛµÈ ÆĞÅ¶ ¼ö for timeout
-//	int cnt[4]={0};	
-//	int timeout[30] = {0};
-//	header frame[100];	//¼ö½Å¹Ş°í ack¸¦ Àü¼ÛÇÒ frame
-//
-//	srand(time(NULL));
-//	printf("Selective Repeat \n--Receiver\n\n");
-//	openSocket(wsaData, S_Socket, C_Socket, s_Addr, c_Addr);
-//
-//	printf("window size = 5\n");
-//	printf("sequence_number : 5bit\n");
-//	printf("transmission rate : 70%%\n");
-//	printf("NakÈ®·ü: 20%, timeoutÈ®·ü: 10%%\n\n");
-//
-//	packet(frame, timeout, C_Socket, cnt);
-//	finsh(C_Socket, c_Addr, timeout, cnt);
-//	return 0;
-//}
-//void openSocket(WSADATA &wsaData, SOCKET &S_Socket, SOCKET &C_Socket, SOCKADDR_IN &s_Addr, SOCKADDR_IN &c_Addr)
-//{
-//	int szc_Addr;
-//
-//	if(WSAStartup(MAKEWORD(2, 2), &wsaData)!=0)
-//	{//À©¼Ó ÃÊ±âÈ­(À©¼ÓÀÇ ¹öÀü2.2 | ÃÊ±âÈ­µÈ »óÅÂ¸¦ º¯¼ö¿¡ ÀúÀå)
-//		printf("WSAStartup() error");
-//		exit(1);
-//	}
-//	if((S_Socket = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-//	{//¼ÒÄÏ »ı¼º(ÁÖ¼Ò Ã¼°è | ¿¬°á ÁöÇâÇü ¼ÒÄÏ | ÇÁ·ÎÅäÄİ)
-//		printf("socket() error");
-//		exit(1);
-//	}
-//
-//	//¿¬°á ¿äÃ»À» ¼ö½ÅÇÒ ÁÖ¼Ò ¼³Á¤
-//	memset(&s_Addr, 0, sizeof(s_Addr));
-//	s_Addr.sin_addr.s_addr = htonl(INADDR_ANY);	//IPÁÖ¼Ò
-//	s_Addr.sin_family = AF_INET;				//±¸Á¶Ã¼ ¼¼ÆÃ
-//	s_Addr.sin_port = htons(PORT);				//Æ÷Æ® ¹øÈ£
-//
-//	if(bind(S_Socket, (SOCKADDR*)&s_Addr, sizeof(s_Addr)) == SOCKET_ERROR)
-//	{//¼ÒÄÏÀ» Æ÷Æ®¿¡ ¿¬°á
-//		printf("bind() error");
-//		exit(1);
-//	}
-//
-//	if(listen(S_Socket, 5) == SOCKET_ERROR)
-//	{//Å¬¶óÀÌ¾ğÆ® ¿¬°á ¿äÃ» ¹ŞÀ½
-//		printf("listen() error");
-//		exit(1);
-//	}
-//
-//	szc_Addr = sizeof(c_Addr);
-//	if((C_Socket = accept(S_Socket,(SOCKADDR*)&c_Addr, &szc_Addr)) == INVALID_SOCKET)
-//	{//Å¬¶óÀÌ¾ğÆ®·ÎºÎÅÍÀÇ ¿¬°á ¿äÃ»À» ¼ö½Å
-//		printf("accept() error");
-//		exit(1);
-//	}
-//}
-//void packet(header (&frame)[100], int (&timeout)[30], SOCKET &C_Socket, int (&cnt)[4])
-//{
-//	int start[30] = {0};
-//	int end[30] = {0};
-//	int flag=0;	//frame loss ¶Ç´Â timeout ¹ß»ıÇÑ °æ¿ì¸¦ ÆÇ´ÜÇÏ´Â º¯¼ö
-//	int i=0;
-//
-//	while(cnt[0]<30)	//30°³ÀÇ frameÀ» ¼ö½Å
-//	{		
-//		printf("¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬\n");
-//		while(cnt[0]<30)
-//		{
-//
-//			start[cnt[0]] = clock();	//¼ö½ÅÇÏ´Â ½ÃÀÛ½Ã°£
-//			//sender·Î ºÎÅÍ frameÀ» ¼ö½Å¹ŞÀ½
-//			recv(C_Socket, (char *)&frame[cnt[0]], sizeof(frame[cnt[0]]), 0);
-//
-//			frame[cnt[0]].p = random(10);	//0~9ÀÇ ¼ıÀÚ°¡ ·£´ıÀ¸·Î ÀúÀå
-//			if(frame[cnt[0]].p < 7)			//p°¡ 0~6ÀÏ¶§ ¼ö½Å(70%)
-//			{
-//				printf("frame ¼ö½Å ¡æ seq number : %d¹øÂ°, Data : %s\n", frame[cnt[0]].Seq_num, frame[cnt[0]].Data);
-//				end[cnt[0]] = clock();
-//				timeout[cnt[0]] = end[cnt[0]] - start[cnt[0]];
-//			}
-//			else							//p°¡ 7~9ÀÏ¶§ frame loss(30%)
-//			{
-//				textcolor(LIGHTRED, BLACK);
-//				printf("frame ¼Õ½Ç ¡æ seq number : %d¹øÂ°\n", frame[cnt[0]].Seq_num);
-//				textcolor(LIGHTGRAY, BLACK);
-//			}
-//			cnt[0]++;
-//			if(cnt[0]%5 == 0){ break; }	//window size¸¸Å­ ¼ö½ÅÀÌ ³¡³ª¸é ack Àü¼Û
-//		}
-//
-//		printf("¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬\n");
-//
-//		while(cnt[1] < cnt[0])	//ACK ¶Ç´Â NAK Àü¼Û
-//		{
-//			if(frame[cnt[1]].p < 7)	//¼ö½Å¿Ï·á
-//			{
-//
-//				//´ÙÀ½¿¡ ¹Ş±â¸¦ ±â´ëÇÏ´Â sequence_number¸¦ ACK¿¡ ´ã¾Æ º¸³½´Ù.
-//				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
-//				printf("ACK Àü¼Û   ¡æ ACK : %d \n\n", frame[cnt[1]].ACK_num+1);
-//				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//ack Àü¼Û
-//			}
-//			else if(frame[cnt[1]].p < 9) //(20% NAK Àü¼Û)
-//			{
-//
-//				//ÀçÀü¼ÛÀ» Èñ¸ÁÇÏ´Â sequence_number¸¦ NAK¿¡ ´ã¾Æ º¸³½´Ù.
-//				cnt[2]++;
-//				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;
-//				printf("¼ö½Å ½ÇÆĞ  ¡æ seq number : %d¹øÂ° ÀçÀü¼Û ¿äÃ»\n", frame[cnt[1]].Seq_num);
-//				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//sender·Î NAK Àü¼Û
-//				recv(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//sender·ÎºÎÅÍ ÇØ´ç frame ¼ö½Å
-//				printf("frame ¼ö½Å ¡æ seq number : %d¹øÂ°, Data : %s\n", frame[cnt[1]].Seq_num, frame[cnt[1]].Data);
-//				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
-//				printf("ACK Àü¼Û   ¡æ ACK : %d\n\n", frame[cnt[1]].ACK_num+1);
-//				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//ack Àü¼Û
-//				end[cnt[1]] = clock();
-//				timeout[cnt[1]] = end[cnt[1]] - start[cnt[1]];
-//			}
-//			else	//(10% timeout)
-//			{
-//
-//				cnt[3]++;
-//				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
-//				printf("¼ö½Å ½ÇÆĞ  ¡æ seq number : %d¹øÂ° ÀçÀü¼Û ¿äÃ»\n", frame[cnt[1]].ACK_num);
-//				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	
-//				recv(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//sender·ÎºÎÅÍ ÇØ´ç frame ¼ö½Å
-//				printf("frame ¼ö½Å ¡æ seq number : %d¹øÂ°, Data : %s\n", frame[cnt[1]].Seq_num, frame[cnt[1]].Data);
-//				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
-//				printf("ACK Àü¼Û   ¡æ ACK : %d\n\n", frame[cnt[1]].ACK_num+1);
-//				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//ack Àü¼Û
-//				end[cnt[1]] = clock();
-//				timeout[cnt[1]] = end[cnt[1]] - start[cnt[1]];
-//			}
-//			cnt[1]++;
-//		}
-//	}
-//}
-//void finsh(SOCKET &C_Socket, SOCKADDR_IN &c_Addr, int (&timeout)[30], int (&cnt)[4])
-//{
-//	int i, total=0;
-//
-//	printf("\n¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬Àü¼Û°á°ú¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬\n");
-//	printf("¼ö½ÅµÈ ÆĞÅ¶ ¼ö : %d\n", cnt[0]);
-//	printf("ÀçÀü¼ÛÇÑ ÆĞÅ¶ ¼ö for NAK : %d\n", cnt[2]);
-//	printf("ÀçÀü¼ÛÇÑ ÆĞÅ¶ ¼ö for time out : %d\n", cnt[3]);
-//	printf("¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬\n");
-//
-//	for(i=0; i<cnt[0]; i++)
-//	{
-//		printf("%d¹øÇÁ·¹ÀÓ receive½Ã°£Àº %d ms ÀÔ´Ï´Ù.\n", i, timeout[i]);
-//		total += timeout[i];
-//	}   
-//
-//	printf("ÃÑÇÁ·¹ÀÓ receive½Ã°£Àº %d ms ÀÔ´Ï´Ù.\n", total);
-//	printf("¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬\n");
-//	closesocket(C_Socket);   //¼ÒÄÏ ¿¬°á Á¾·á.;
-//	printf("%s ¿ÍÀÇ ¿¬°áÁ¾·á\n",inet_ntoa(c_Addr.sin_addr));
-//	WSACleanup();   //À©¼Ó Á¦°Å
-//}
-//int random(int n) 
-//{ 
-//	int res; 
-//	res = rand() % n; // 0ºÎÅÍ n-1±îÁöÀÇ ¼öÁß ³­¼ö ¹ß»ı 
-//	return res;
-//} 
-//void textcolor(int foreground, int background) 
-//{ 
-//	int color=foreground+background*16; 
-//	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color); 
-//} 
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<winsock2.h>
+#include<conio.h>
+#include<time.h>
+#pragma comment(lib,"ws2_32.lib")
+#define PORT 3000
+#define BLACK 0
+#define LIGHTGRAY 7
+#define LIGHTRED 12 
+typedef struct FRAME{					
+	unsigned int p :5;				//ì „ì†¡ ì„±ê³µë¥ 
+	unsigned int Seq_num :7;		//seq
+	unsigned int ACK_num :7;
+	unsigned long sender;	
+	unsigned long receiver;
+	char Data[200];
+}header;
+
+void openSocket(WSADATA &wsaData, SOCKET &S_Socket, SOCKET &C_Socket, SOCKADDR_IN &s_Addr, SOCKADDR_IN &c_Addr);
+void packet(header (&frame)[100], int (&timeout)[30], SOCKET &C_Socket, int (&cnt)[4]);
+void finsh(SOCKET &C_Socket, SOCKADDR_IN &c_Addr, int (&timeout)[30], int (&cnt)[4]);
+void textcolor(int foreground, int background);
+int random(int n);
+
+int main(int argc, char **argv)
+{
+	WSADATA wsaData;		//ìœˆì† ì´ˆê¸°í™” ì •ë³´ êµ¬ì¡°ì²´
+	SOCKET S_Socket;
+	SOCKET C_Socket;
+	SOCKADDR_IN s_Addr;
+	SOCKADDR_IN c_Addr;
+
+	//[0] frame ìˆ˜ì‹  íšŸìˆ˜ | [1]ack ì „ì†¡íšŸìˆ˜ | [2]ì¬ì „ì†¡ëœ íŒ¨í‚· ìˆ˜ for NAK | [3]ì¬ì „ì†¡ëœ íŒ¨í‚· ìˆ˜ for timeout
+	int cnt[4]={0};	
+	int timeout[30] = {0};
+	header frame[100];	//ìˆ˜ì‹ ë°›ê³  ackë¥¼ ì „ì†¡í•  frame
+
+	srand(time(NULL));
+	printf("Selective Repeat \n--Receiver\n\n");
+	openSocket(wsaData, S_Socket, C_Socket, s_Addr, c_Addr);
+
+	printf("window size = 5\n");
+	printf("sequence_number : 5bit\n");
+	printf("transmission rate : 70%%\n");
+	printf("Nakí™•ë¥ : 20%, timeoutí™•ë¥ : 10%%\n\n");
+
+	packet(frame, timeout, C_Socket, cnt);
+	finsh(C_Socket, c_Addr, timeout, cnt);
+	return 0;
+}
+void openSocket(WSADATA &wsaData, SOCKET &S_Socket, SOCKET &C_Socket, SOCKADDR_IN &s_Addr, SOCKADDR_IN &c_Addr)
+{
+	int szc_Addr;
+
+	if(WSAStartup(MAKEWORD(2, 2), &wsaData)!=0)
+	{//ìœˆì† ì´ˆê¸°í™”(ìœˆì†ì˜ ë²„ì „2.2 | ì´ˆê¸°í™”ëœ ìƒíƒœë¥¼ ë³€ìˆ˜ì— ì €ì¥)
+		printf("WSAStartup() error");
+		exit(1);
+	}
+	if((S_Socket = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+	{//ì†Œì¼“ ìƒì„±(ì£¼ì†Œ ì²´ê³„ | ì—°ê²° ì§€í–¥í˜• ì†Œì¼“ | í”„ë¡œí† ì½œ)
+		printf("socket() error");
+		exit(1);
+	}
+
+	//ì—°ê²° ìš”ì²­ì„ ìˆ˜ì‹ í•  ì£¼ì†Œ ì„¤ì •
+	memset(&s_Addr, 0, sizeof(s_Addr));
+	s_Addr.sin_addr.s_addr = htonl(INADDR_ANY);	//IPì£¼ì†Œ
+	s_Addr.sin_family = AF_INET;				//êµ¬ì¡°ì²´ ì„¸íŒ…
+	s_Addr.sin_port = htons(PORT);				//í¬íŠ¸ ë²ˆí˜¸
+
+	if(bind(S_Socket, (SOCKADDR*)&s_Addr, sizeof(s_Addr)) == SOCKET_ERROR)
+	{//ì†Œì¼“ì„ í¬íŠ¸ì— ì—°ê²°
+		printf("bind() error");
+		exit(1);
+	}
+
+	if(listen(S_Socket, 5) == SOCKET_ERROR)
+	{//í´ë¼ì´ì–¸íŠ¸ ì—°ê²° ìš”ì²­ ë°›ìŒ
+		printf("listen() error");
+		exit(1);
+	}
+
+	szc_Addr = sizeof(c_Addr);
+	if((C_Socket = accept(S_Socket,(SOCKADDR*)&c_Addr, &szc_Addr)) == INVALID_SOCKET)
+	{//í´ë¼ì´ì–¸íŠ¸ë¡œë¶€í„°ì˜ ì—°ê²° ìš”ì²­ì„ ìˆ˜ì‹ 
+		printf("accept() error");
+		exit(1);
+	}
+}
+void packet(header (&frame)[100], int (&timeout)[30], SOCKET &C_Socket, int (&cnt)[4])
+{
+	int start[30] = {0};
+	int end[30] = {0};
+	int flag=0;	//frame loss ë˜ëŠ” timeout ë°œìƒí•œ ê²½ìš°ë¥¼ íŒë‹¨í•˜ëŠ” ë³€ìˆ˜
+	int i=0;
+
+	while(cnt[0]<30)	//30ê°œì˜ frameì„ ìˆ˜ì‹ 
+	{		
+		printf("â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n");
+		while(cnt[0]<30)
+		{
+
+			start[cnt[0]] = clock();	//ìˆ˜ì‹ í•˜ëŠ” ì‹œì‘ì‹œê°„
+			//senderë¡œ ë¶€í„° frameì„ ìˆ˜ì‹ ë°›ìŒ
+			recv(C_Socket, (char *)&frame[cnt[0]], sizeof(frame[cnt[0]]), 0);
+
+			frame[cnt[0]].p = random(10);	//0~9ì˜ ìˆ«ìê°€ ëœë¤ìœ¼ë¡œ ì €ì¥
+			if(frame[cnt[0]].p < 7)			//pê°€ 0~6ì¼ë•Œ ìˆ˜ì‹ (70%)
+			{
+				printf("frame ìˆ˜ì‹  â†’ seq number : %dë²ˆì§¸, Data : %s\n", frame[cnt[0]].Seq_num, frame[cnt[0]].Data);
+				end[cnt[0]] = clock();
+				timeout[cnt[0]] = end[cnt[0]] - start[cnt[0]];
+			}
+			else							//pê°€ 7~9ì¼ë•Œ frame loss(30%)
+			{
+				textcolor(LIGHTRED, BLACK);
+				printf("frame ì†ì‹¤ â†’ seq number : %dë²ˆì§¸\n", frame[cnt[0]].Seq_num);
+				textcolor(LIGHTGRAY, BLACK);
+			}
+			cnt[0]++;
+			if(cnt[0]%5 == 0){ break; }	//window sizeë§Œí¼ ìˆ˜ì‹ ì´ ëë‚˜ë©´ ack ì „ì†¡
+		}
+
+		printf("â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n");
+
+		while(cnt[1] < cnt[0])	//ACK ë˜ëŠ” NAK ì „ì†¡
+		{
+			if(frame[cnt[1]].p < 7)	//ìˆ˜ì‹ ì™„ë£Œ
+			{
+
+				//ë‹¤ìŒì— ë°›ê¸°ë¥¼ ê¸°ëŒ€í•˜ëŠ” sequence_numberë¥¼ ACKì— ë‹´ì•„ ë³´ë‚¸ë‹¤.
+				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
+				printf("ACK ì „ì†¡   â†’ ACK : %d \n\n", frame[cnt[1]].ACK_num+1);
+				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//ack ì „ì†¡
+			}
+			else if(frame[cnt[1]].p < 9) //(20% NAK ì „ì†¡)
+			{
+
+				//ì¬ì „ì†¡ì„ í¬ë§í•˜ëŠ” sequence_numberë¥¼ NAKì— ë‹´ì•„ ë³´ë‚¸ë‹¤.
+				cnt[2]++;
+				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;
+				printf("ìˆ˜ì‹  ì‹¤íŒ¨  â†’ seq number : %dë²ˆì§¸ ì¬ì „ì†¡ ìš”ì²­\n", frame[cnt[1]].Seq_num);
+				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//senderë¡œ NAK ì „ì†¡
+				recv(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//senderë¡œë¶€í„° í•´ë‹¹ frame ìˆ˜ì‹ 
+				printf("frame ìˆ˜ì‹  â†’ seq number : %dë²ˆì§¸, Data : %s\n", frame[cnt[1]].Seq_num, frame[cnt[1]].Data);
+				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
+				printf("ACK ì „ì†¡   â†’ ACK : %d\n\n", frame[cnt[1]].ACK_num+1);
+				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//ack ì „ì†¡
+				end[cnt[1]] = clock();
+				timeout[cnt[1]] = end[cnt[1]] - start[cnt[1]];
+			}
+			else	//(10% timeout)
+			{
+
+				cnt[3]++;
+				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
+				printf("ìˆ˜ì‹  ì‹¤íŒ¨  â†’ seq number : %dë²ˆì§¸ ì¬ì „ì†¡ ìš”ì²­\n", frame[cnt[1]].ACK_num);
+				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	
+				recv(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//senderë¡œë¶€í„° í•´ë‹¹ frame ìˆ˜ì‹ 
+				printf("frame ìˆ˜ì‹  â†’ seq number : %dë²ˆì§¸, Data : %s\n", frame[cnt[1]].Seq_num, frame[cnt[1]].Data);
+				frame[cnt[1]].ACK_num = frame[cnt[1]].Seq_num;	
+				printf("ACK ì „ì†¡   â†’ ACK : %d\n\n", frame[cnt[1]].ACK_num+1);
+				send(C_Socket, (char *)&frame[cnt[1]], sizeof(frame[cnt[1]]), 0);	//ack ì „ì†¡
+				end[cnt[1]] = clock();
+				timeout[cnt[1]] = end[cnt[1]] - start[cnt[1]];
+			}
+			cnt[1]++;
+		}
+	}
+}
+void finsh(SOCKET &C_Socket, SOCKADDR_IN &c_Addr, int (&timeout)[30], int (&cnt)[4])
+{
+	int i, total=0;
+
+	printf("\nâ”â”â”â”â”â”â”â”â”â”â”â”â”ì „ì†¡ê²°ê³¼â”â”â”â”â”â”â”â”â”â”â”â”â”\n");
+	printf("ìˆ˜ì‹ ëœ íŒ¨í‚· ìˆ˜ : %d\n", cnt[0]);
+	printf("ì¬ì „ì†¡í•œ íŒ¨í‚· ìˆ˜ for NAK : %d\n", cnt[2]);
+	printf("ì¬ì „ì†¡í•œ íŒ¨í‚· ìˆ˜ for time out : %d\n", cnt[3]);
+	printf("â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n");
+
+	for(i=0; i<cnt[0]; i++)
+	{
+		printf("%dë²ˆí”„ë ˆì„ receiveì‹œê°„ì€ %d ms ì…ë‹ˆë‹¤.\n", i, timeout[i]);
+		total += timeout[i];
+	}   
+
+	printf("ì´í”„ë ˆì„ receiveì‹œê°„ì€ %d ms ì…ë‹ˆë‹¤.\n", total);
+	printf("â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n");
+	closesocket(C_Socket);   //ì†Œì¼“ ì—°ê²° ì¢…ë£Œ.;
+	printf("%s ì™€ì˜ ì—°ê²°ì¢…ë£Œ\n",inet_ntoa(c_Addr.sin_addr));
+	WSACleanup();   //ìœˆì† ì œê±°
+}
+int random(int n) 
+{ 
+	int res; 
+	res = rand() % n; // 0ë¶€í„° n-1ê¹Œì§€ì˜ ìˆ˜ì¤‘ ë‚œìˆ˜ ë°œìƒ 
+	return res;
+} 
+void textcolor(int foreground, int background) 
+{ 
+	int color=foreground+background*16; 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color); 
+} 
